@@ -1,13 +1,13 @@
 #include <SFML/Graphics.hpp>
 #include <functional>
-
+using namespace std;
 export module Button;
 
 
 
 export class Button {
 public:
-    Button(const sf::Vector2f& position, const sf::Vector2f& size, const sf::Color& idleColor, const sf::Color& hoverColor, const sf::Color& clickColor, std::function<void()> onClick, const std::string& text = "")
+    Button(const sf::Vector2f& position, const sf::Vector2f& size, const sf::Color& idleColor, const sf::Color& hoverColor, const sf::Color& clickColor, function<void()> onClick, const string& text = "")
         : position(position), size(size), idleColor(idleColor), hoverColor(hoverColor), clickColor(clickColor), currentState(State::Idle), onClick(onClick)
     {
         shape.setPosition(position);
@@ -19,7 +19,7 @@ public:
         }
     }
 
-    void setText(const std::string& text, unsigned int characterSize = 28, const sf::Color& textColor = sf::Color::White)
+    void setText(const string& text, unsigned int characterSize = 28, const sf::Color& textColor = sf::Color::White)
     {
         buttonText.setString(text);
         buttonText.setCharacterSize(characterSize);
@@ -93,7 +93,7 @@ private:
     sf::Color clickColor;
     State currentState;
     sf::RectangleShape shape;
-    std::function<void()> onClick;
+    function<void()> onClick;
 
     sf::Text buttonText;
 };

@@ -13,6 +13,7 @@ using namespace std;
 int main()
 {
     bool test = false;
+    int time = 120;
     bool fake = true;
     //Okno programu
     sf::RenderWindow window{ sf::VideoMode{1200,800},"Sudoku" };
@@ -77,7 +78,7 @@ int main()
                 }
                 for (int i=0;i<Buttons.size();i++)
                 {
-                    if (i == 0)
+                    if (i == 0 || i == 2)
                     {
                         Buttons[i].handleEvent(event, window, test);
                     }

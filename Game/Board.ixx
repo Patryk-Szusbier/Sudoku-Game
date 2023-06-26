@@ -33,19 +33,15 @@ public:
         }
     }
     // wczytanie planszy z pliku
-    void loadFromFile(string filename)
-    {
-
-    }
     void ReadFromFile()
     {
         sf::RenderWindow window(sf::VideoMode(400, 300), "Save Board");
-        std::string savePath;
+        string savePath;
         sf::Font font;
         font.loadFromFile("./Raleway-Regular.ttf");
-        bool promptt;
-        // Regular expression pattern for allowed characters
-        std::regex pattern("[a-zA-Z0-9. :\\\\]");
+        bool promptt = false;
+        // Regex
+        regex pattern("[a-zA-Z0-9. :\\\\]");
 
         while (window.isOpen())
         {
@@ -67,7 +63,7 @@ public:
                         // User pressed Enter, save the board to the chosen location
                         if (!savePath.empty())
                         {
-                            promptt = saveBoardToFile(savePath);
+                            promptt = readBoardFromFile(savePath);
                             window.close();
                         }
                     }
@@ -83,10 +79,10 @@ public:
                     {
                         // User entered a printable ASCII character, append it to the save path
                         char enteredChar = static_cast<char>(event.text.unicode);
-                        std::string enteredStr(1, enteredChar);
+                        string enteredStr(1, enteredChar);
 
                         // Check if the entered character matches the regex pattern
-                        if (std::regex_match(enteredStr, pattern))
+                        if (regex_match(enteredStr, pattern))
                         {
                             savePath += enteredStr;
                         }
@@ -100,14 +96,14 @@ public:
             text.setPosition(50.f, 50.f);
             window.draw(text);
             // Display the selected save path
-            std::string displayPath = savePath.empty() ? "No path selected" : savePath;
+            string displayPath = savePath.empty() ? "No path selected" : savePath;
             sf::Text savePathText(displayPath, font, 20);
             savePathText.setPosition(50.f, 100.f);
             window.draw(savePathText);
 
             window.display();
         }
-        sf::RenderWindow window2(sf::VideoMode(300, 200), "Save Board");
+        sf::RenderWindow window2(sf::VideoMode(300, 200), "Load Board");
         font.loadFromFile("./Raleway-Regular.ttf");
         while (window2.isOpen())
         {
@@ -134,13 +130,13 @@ public:
             window2.clear(sf::Color(109, 109, 110, 255));
             if (promptt)
             {
-                sf::Text text("Zapisano", font, 50);
+                sf::Text text("Wczytano", font, 50);
                 text.setPosition(50.f, 50.f);
                 window2.draw(text);
             }
             else
             {
-                sf::Text text("Nie udalo sie zapisac", font, 25);
+                sf::Text text("Nie udalo sie wczytac", font, 25);
                 text.setPosition(25.f, 75.f);
                 window2.draw(text);
             }
@@ -151,12 +147,12 @@ public:
     void saveToFile()
     {
         sf::RenderWindow window(sf::VideoMode(400, 300), "Save Board");
-        std::string savePath;
+        string savePath;
         sf::Font font;
         font.loadFromFile("./Raleway-Regular.ttf");
-        bool promptt;
+        bool promptt = false;
         // Regular expression pattern for allowed characters
-        std::regex pattern("[a-zA-Z0-9. :\\\\]");
+        regex pattern("[a-zA-Z0-9. :\\\\]");
 
         while (window.isOpen())
         {
@@ -194,10 +190,10 @@ public:
                     {
                         // User entered a printable ASCII character, append it to the save path
                         char enteredChar = static_cast<char>(event.text.unicode);
-                        std::string enteredStr(1, enteredChar);
+                        string enteredStr(1, enteredChar);
 
                         // Check if the entered character matches the regex pattern
-                        if (std::regex_match(enteredStr, pattern))
+                        if (regex_match(enteredStr, pattern))
                         {
                             savePath += enteredStr;
                         }
@@ -211,7 +207,7 @@ public:
             text.setPosition(50.f, 50.f);
             window.draw(text);
             // Display the selected save path
-            std::string displayPath = savePath.empty() ? "No path selected" : savePath;
+            string displayPath = savePath.empty() ? "No path selected" : savePath;
             sf::Text savePathText(displayPath, font, 20);
             savePathText.setPosition(50.f, 100.f);
             window.draw(savePathText);
@@ -375,7 +371,7 @@ private:
             {
                 for (int hor = COordinates; hor < end; hor++)
                 {
-                    uniform_int_distribution<std::mt19937::result_type> dist6(0, (values.size() - 1));
+                    uniform_int_distribution<mt19937::result_type> dist6(0, (values.size() - 1));
                     temp = dist6(rng);
                     board[ver][hor] = Cell(values[temp], false);
                     values.erase(values.begin() + temp);
@@ -548,32 +544,94 @@ private:
         }
         return true;
     }
-    bool saveBoardToFile(const std::filesystem::path& filePath) {
+    bool saveBoardToFile(const filesystem::path& filePath) {
         string pathString = filePath.generic_string();
-        std::replace(pathString.begin(), pathString.end(), '/', '\\');
-        std::ofstream file(pathString);
+        replace(pathString.begin(), pathString.end(), '/', '\\');
+        filesystem::path Path = pathString;
+        ofstream file(Path);
         if (file.is_open()) {
             for (const auto& row : board) {
-                std::ranges::for_each(row, [&](const Cell& cell) {
+                ranges::for_each(row, [&](const Cell& cell) {
                     file << cell.getValue() << ' ';
                     });
                 file << '\n';
             }
             file << '\n';
             for (const auto& row : board) {
-                std::ranges::for_each(row, [&](const Cell& cell) {
+                ranges::for_each(row, [&](const Cell& cell) {
                     file << cell.isEditable() << ' ';
                     });
                 file << '\n';
             }
             file.close();
-            std::cout << "Board saved successfully to " << pathString << std::endl;
             return true;
 
         }
         else {
-            std::cout << "Unable to save the board to " << pathString << std::endl;
             return false;
         }
+    }
+    bool readBoardFromFile(const string& filename) 
+    {
+        ifstream file(filename);
+        string line;
+        bool isEditableSection = false;
+        int i = 0;
+        if (!file.is_open()) {
+            return false;
+        }
+
+        while (getline(file, line)) 
+        {
+
+            if (line.empty()) {
+                isEditableSection = true;
+                continue;
+            }
+            //ranges
+            auto filtered = line | views::filter([](char c) { return c != ' '; });
+
+            string result;
+            
+            
+            for (char c : filtered) {
+                result.push_back(c);
+            }
+
+            if (!isEditableSection)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    char c = result[j];
+                    string singleCharString(1, c);
+                    board[i][j].setValue(stoi(singleCharString));
+                    board2[i][j].setValue(stoi(singleCharString));
+                }
+                if (i >= 8)
+                {
+                    i = 0;
+                }
+                else
+                {
+                    i++;
+                }
+            }
+            else
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    char c = result[j];
+                    string singleCharString(1, c);
+                    board[i][j].setEditable(stoi(singleCharString));
+                    board2[i][j].setEditable(stoi(singleCharString));
+
+                }
+                    i++;
+                
+            }
+            
+        }
+
+        return true;
     }
 };

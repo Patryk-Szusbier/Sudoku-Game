@@ -22,14 +22,17 @@ public:
         Button Generate(sf::Vector2f(825, 250), sf::Vector2f(250, 75), sf::Color::Red, sf::Color::Green, sf::Color::Blue,
             bind(&Board::generate, &Bor), "Generuj");
 
-        //Problem, z bind Nie chce dzia³aæ z this
        Button Save(sf::Vector2f(825.00, 350.0), sf::Vector2f(250, 50), sf::Color::Red, sf::Color::Green, sf::Color::Blue,
           bind(&Board::saveToFile, &Bor), "Zapisz");
 
+       Button Load(sf::Vector2f(825.00, 425.0), sf::Vector2f(250, 50), sf::Color::Red, sf::Color::Green, sf::Color::Blue,
+           bind(&Board::ReadFromFile, &Bor), "Wczytaj");
         Generate.setFont(font);
          Save.setFont(font);
+         Load.setFont(font);
          Buttons.push_back(Generate);
          Buttons.push_back(Save);
+         Buttons.push_back(Load);
     }
     //Wygenerowanie planszy TextBoxów
 	void GenerateTextBox(vector<vector<TextBox>>& textBoxes, sf::Font& font)
@@ -39,7 +42,7 @@ public:
         int posY = 100;
         for (int i = 0; i < 9; i++)
         {
-            std::vector<TextBox> row;
+            vector<TextBox> row;
             for (int j = 0; j < 9; j++)
             {
                 TextBox text(font, 24, sf::Vector2f(posX, posY), sf::Color::White, sf::Color::Black, sf::Color::Black, sf::Vector2f(50, 50), 3.f, i, j);

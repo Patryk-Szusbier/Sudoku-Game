@@ -112,7 +112,7 @@ public:
 private:
     sf::Text text;
     sf::RectangleShape shape;
-    std::string textString;
+    string textString;
     bool isActive = false;
     bool isBlocked;
     int X;
